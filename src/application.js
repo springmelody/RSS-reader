@@ -79,12 +79,14 @@ export default () => {
   const renderFeedback = (errorType) => {
     const feedbackContainer = document.querySelector('.feedback');
     feedbackContainer.classList.add('text-danger');
+    input.classList.add('is-invalid');
     feedbackContainer.innerHTML = errorType;
   };
 
   const renderSuccessMessage = () => {
     const feedbackContainer = document.querySelector('.feedback');
     feedbackContainer.classList.remove('text-danger');
+    input.classList.remove('is-invalid');
     feedbackContainer.classList.add('text-success');
     feedbackContainer.innerHTML = 'Rss has been loaded';
   }
