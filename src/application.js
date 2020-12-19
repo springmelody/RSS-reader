@@ -16,6 +16,7 @@ const errorMessages = {
   required: 'Required',
   url: 'Must be valid url',
   duplicate: 'Rss already exists',
+  network: 'Network Error',
 }
 
 const buildSchema = (watchedState) => {
@@ -62,6 +63,9 @@ export default () => {
         renderFeedback(errorType)
         break;
       case errorMessages.duplicate:
+        renderFeedback(errorType)
+        break;
+      case errorMessages.network:
         renderFeedback(errorType)
         break;
       case null:
