@@ -1,40 +1,46 @@
+/* eslint-disable no-param-reassign */
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-import parse from './parse.js';
 import * as yup from 'yup';
 import onChange from 'on-change';
-import _ from "lodash";
-import render from "./render.js";
+import i18next from 'i18next';
+import parse from './parse.js';
+import renderPosts from './renderPosts.js';
+import renderFeeds from './renderFeeds.js';
+import resources from './locales/en.js';
 
 const form = document.querySelector('.rss-form');
 const input = form.querySelector('.form-control');
 const submitButton = form.querySelector('button[type="submit"]');
 const corps = 'https://api.allorigins.win/raw?url=';
+i18next.init({
+  lng: 'en',
+  debug: true,
+  resources,
+});
 
 const errorMessages = {
-  required: 'Required',
-  url: 'Must be valid url',
-  duplicate: 'Rss already exists',
-  network: 'Network Error',
-}
+  required: i18next.t('errorMessages.required'),
+  url: i18next.t('errorMessages.url'),
+  duplicate: i18next.t('duplicate'),
+  network: i18next.t('errorMessages.network'),
+};
 
-const buildSchema = (watchedState) => {
-  return yup.object().shape({
+const buildSchema = (watchedState) => (
+  yup.object().shape({
     text: yup.string()
       .required(errorMessages.required)
       .url(errorMessages.url)
       .notOneOf(watchedState.rssContent.feedsUrl, errorMessages.duplicate),
-  });
-};
+  }));
 
 const validate = (watchedState) => {
   try {
     const schema = buildSchema(watchedState);
     schema.validateSync(watchedState.form);
     return null;
-  }
-  catch (err) {
+  } catch (err) {
     return err.message;
   }
 };
@@ -51,29 +57,7 @@ export default () => {
       feeds: [],
       posts: [],
       feedsUrl: [],
-    }
-  };
-
-  const renderErrors = (errorType) => {
-    switch (errorType) {
-      case errorMessages.required:
-        renderFeedback(errorType)
-        break;
-      case errorMessages.url:
-        renderFeedback(errorType)
-        break;
-      case errorMessages.duplicate:
-        renderFeedback(errorType)
-        break;
-      case errorMessages.network:
-        renderFeedback(errorType)
-        break;
-      case null:
-        console.log(null);
-        break;
-      default:
-        throw new Error(`Unknown errorType: ${errorType}`);
-    }
+    },
   };
 
   const renderFeedback = (errorType) => {
@@ -83,19 +67,35 @@ export default () => {
     feedbackContainer.innerHTML = errorType;
   };
 
+  const renderErrors = (errorType) => {
+    switch (errorType) {
+      case errorMessages.required:
+        renderFeedback(errorType);
+        break;
+      case errorMessages.url:
+        renderFeedback(errorType);
+        break;
+      case errorMessages.duplicate:
+        renderFeedback(errorType);
+        break;
+      case errorMessages.network:
+        renderFeedback(errorType);
+        break;
+      case null:
+        // console.log(null);
+        break;
+      default:
+        throw new Error(`Unknown errorType: ${errorType}`);
+    }
+  };
+
   const renderSuccessMessage = () => {
     const feedbackContainer = document.querySelector('.feedback');
     feedbackContainer.classList.remove('text-danger');
     input.classList.remove('is-invalid');
     feedbackContainer.classList.add('text-success');
-    feedbackContainer.innerHTML = 'Rss has been loaded';
-  }
-
-  const watchedState = onChange(state, (path) => {
-    if (path === 'form.processState') {
-      processStateHandler(watchedState);
-    }
-  });
+    feedbackContainer.innerHTML = i18next.t('loaded');
+  };
 
   const processStateHandler = (watchedState) => {
     if (watchedState.form.processState === 'empty' || watchedState.form.processState === 'filling') {
@@ -111,7 +111,6 @@ export default () => {
     }
 
     if (watchedState.form.processState === 'finished') {
-      render(watchedState.rssContent);
       renderSuccessMessage();
     }
 
@@ -121,14 +120,28 @@ export default () => {
     }
   };
 
-  const updateValidationState = (watchedState) => {
-    const error = validate(watchedState);
+  const watchedState = onChange(state, (path) => {
+    if (path === 'form.processState') {
+      processStateHandler(watchedState);
+    }
+
+    if (path === 'rssContent.posts') {
+      renderPosts(watchedState.rssContent.posts);
+    }
+
+    if (path === 'rssContent.feeds') {
+      renderFeeds(watchedState.rssContent.feeds);
+    }
+  });
+
+  const updateValidationState = (validationState) => {
+    const error = validate(state);
     if (error === null) {
-      watchedState.form.valid = true;
-      watchedState.form.errorType = null;
+      validationState.form.valid = true;
+      validationState.form.errorType = null;
     } else {
-      watchedState.form.valid = false;
-      watchedState.form.errorType = error;
+      validationState.form.valid = false;
+      validationState.form.errorType = error;
     }
   };
 
@@ -137,7 +150,6 @@ export default () => {
     watchedState.form.processState = value === '' ? 'empty' : 'filling';
     updateValidationState(watchedState);
   };
-
 
   const formHandler = (e) => {
     e.preventDefault();
@@ -154,27 +166,33 @@ export default () => {
       .then(({ data }) => data)
       .then((data) => {
         const dataFeed = parse(data);
-        const { title , description, itemsInfo } = dataFeed
-        const newFeed = { title, description };
+        const {
+          title, description, id, itemsInfo,
+        } = dataFeed;
+        const newFeed = {
+          id, title, description,
+        };
         watchedState.rssContent.feeds.push(newFeed);
         watchedState.rssContent.feedsUrl.push(rssUrl);
         watchedState.rssContent.posts.unshift(itemsInfo);
-        console.log('watchedState posts', watchedState.rssContent.posts);
+        // console.log('watchedState posts', watchedState.rssContent.posts);
         watchedState.form.processState = 'finished';
         form.reset();
         input.focus();
         watchedState.form.processState = 'empty';
-        const maxPubDate = itemsInfo.map((el) => el.itemDate);
+        // const maxPubDate = itemsInfo.map((el) => el.itemDate);
+        // console.log('itemsInfo', watchedState.rssContent.posts);
+        // console.log('newFeed', watchedState.rssContent.feeds);
         // console.log(maxPubDate);
         // setTimeout(() => update(url, maxPubDate), 5000);
       })
       .catch((err) => {
-        console.log('err', err);
+        // console.log('err', err);
         watchedState.form.errorType = err.message;
         watchedState.form.processState = 'failed';
       });
-  }
+  };
 
   input.addEventListener('input', inputHandler);
-  form.addEventListener('submit', formHandler)
-}
+  form.addEventListener('submit', formHandler);
+};
