@@ -1,3 +1,30 @@
+// export default (posts) => {
+//   const postsContainer = document.querySelector('.posts');
+//   postsContainer.innerHTML = '';
+//   const postsTitle = document.createElement('h2');
+//   postsTitle.innerText = 'Posts';
+//   postsContainer.appendChild(postsTitle);
+//
+//   const postsList = posts;
+//   console.log('yo postsList', postsList);
+//   const list = document.createElement('ul');
+//   list.setAttribute('class', 'list-group');
+//   postsList.forEach((i) => {
+//     console.log('inner posts ?', i);
+//     i.forEach((post) => {
+//       const item = document.createElement('li');
+//       item.setAttribute('class', 'list-group-item');
+//       const itemElLink = document.createElement('a');
+//       itemElLink.setAttribute('href', post.itemLink);
+//       itemElLink.innerHTML = post.itemTitle;
+//       item.appendChild(itemElLink);
+//       list.appendChild(item);
+//     });
+//   });
+//   postsContainer.appendChild(list);
+// };
+
+
 export default (posts) => {
   const postsContainer = document.querySelector('.posts');
   postsContainer.innerHTML = '';
@@ -6,11 +33,10 @@ export default (posts) => {
   postsContainer.appendChild(postsTitle);
 
   const postsList = posts;
-  console.log('postsList', postsList);
+  console.log('yo postsList', postsList);
   const list = document.createElement('ul');
   list.setAttribute('class', 'list-group');
-  postsList.forEach((i) => {
-    i.forEach((post) => {
+  postsList.forEach((post) => {
       const item = document.createElement('li');
       item.setAttribute('class', 'list-group-item');
       const itemElLink = document.createElement('a');
@@ -18,7 +44,6 @@ export default (posts) => {
       itemElLink.innerHTML = post.itemTitle;
       item.appendChild(itemElLink);
       list.appendChild(item);
-    });
   });
   postsContainer.appendChild(list);
 };

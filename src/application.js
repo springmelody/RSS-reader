@@ -3,6 +3,7 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import * as yup from 'yup';
+import _ from 'lodash';
 import onChange from 'on-change';
 import i18next from 'i18next';
 import parse from './parse.js';
@@ -13,10 +14,11 @@ import resources from './locales/en.js';
 const form = document.querySelector('.rss-form');
 const input = form.querySelector('.form-control');
 const submitButton = form.querySelector('button[type="submit"]');
-const corps = 'https://api.allorigins.win/raw?url=';
+// const corps = 'https://api.allorigins.win/raw?url=';
+const corps = 'http://cors-anywhere.herokuapp.com/';
 i18next.init({
   lng: 'en',
-  debug: true,
+  debug: false,
   resources,
 });
 
@@ -151,6 +153,27 @@ export default () => {
     updateValidationState(watchedState);
   };
 
+  const update = (url, maxPubDate, feedId) => {
+    axios.get(url)
+      .then(({ data }) => data)
+      .then((data) => {
+        const newDataFeed = parse(data);
+        const { itemsInfo } = newDataFeed;
+        const newPost = itemsInfo
+          .filter((el) => el.itemDate > maxPubDate)
+          .map((post) => ({...post, id:_.uniqueId(), feedId }));
+        // console.log('старые посты', state.rssContent.posts);
+        watchedState.rssContent.posts = [...newPost, ...watchedState.rssContent.posts];
+        // console.log('+ новый пост', state.rssContent.posts);
+        const newMaxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
+        setTimeout(() => update(url, newMaxPubDate, feedId), 5000);
+      })
+      .catch((err) => {
+        watchedState.form.errorType = err.message;
+        watchedState.form.processState = 'failed';
+      });
+  };
+
   const formHandler = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -166,28 +189,26 @@ export default () => {
       .then(({ data }) => data)
       .then((data) => {
         const dataFeed = parse(data);
+        const feedId = _.uniqueId();
         const {
-          title, description, id, itemsInfo,
+          title, description, itemsInfo,
         } = dataFeed;
         const newFeed = {
-          id, title, description,
+          id: feedId, title, description,
         };
+        const newPosts = [...itemsInfo].map((post) => ({...post, id:_.uniqueId(), feedId }));
         watchedState.rssContent.feeds.push(newFeed);
         watchedState.rssContent.feedsUrl.push(rssUrl);
-        watchedState.rssContent.posts.unshift(itemsInfo);
-        // console.log('watchedState posts', watchedState.rssContent.posts);
+        // watchedState.rssContent.posts = [...newPosts, ...watchedState.rssContent.posts]; => правильный вариант
+        watchedState.rssContent.posts.unshift(...newPosts);
         watchedState.form.processState = 'finished';
         form.reset();
         input.focus();
         watchedState.form.processState = 'empty';
-        // const maxPubDate = itemsInfo.map((el) => el.itemDate);
-        // console.log('itemsInfo', watchedState.rssContent.posts);
-        // console.log('newFeed', watchedState.rssContent.feeds);
-        // console.log(maxPubDate);
-        // setTimeout(() => update(url, maxPubDate), 5000);
+        const maxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
+        setTimeout(() => update(url, maxPubDate, feedId), 5000);
       })
       .catch((err) => {
-        // console.log('err', err);
         watchedState.form.errorType = err.message;
         watchedState.form.processState = 'failed';
       });
