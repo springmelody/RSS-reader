@@ -7,9 +7,10 @@ export default (data) => {
   const itemsInfo = [...items].map((item) => {
     const itemTitle = item.querySelector('title').textContent;
     const itemLink = item.querySelector('link').textContent;
+    const itemDescription = item.querySelector('description').textContent;
     const itemDate = new Date(item.querySelector('pubDate').textContent);
     return {
-      itemTitle, itemLink, itemDate,
+      itemTitle, itemLink, itemDescription, itemDate,
     };
   });
 

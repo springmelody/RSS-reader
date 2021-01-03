@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import * as yup from 'yup';
 import _ from 'lodash';
+import $ from 'jquery';
 import onChange from 'on-change';
 import i18next from 'i18next';
 import parse from './parse.js';
@@ -47,7 +48,19 @@ const validate = (watchedState) => {
   }
 };
 
+
 export default () => {
+  $('#exampleModal').on('shown.bs.modal', function (event) {
+    const button = $(event.relatedTarget)
+    const recipient = button.data('id');
+    const postInfo = state.rssContent.posts.find((el) => Number(el.id) === recipient);
+    const modal = $(this);
+    modal.find('.modal-body').text(postInfo.itemDescription);
+    modal.find('.modal-title').text(postInfo.itemTitle);
+    modal.find('.full-article').attr('href', postInfo.itemLink);
+    watchedState.rssContent.viewedPosts.push(recipient);
+  })
+
   const state = {
     form: {
       text: '',
@@ -59,6 +72,7 @@ export default () => {
       feeds: [],
       posts: [],
       feedsUrl: [],
+      viewedPosts: [], // только зачем?
     },
   };
 
@@ -99,6 +113,13 @@ export default () => {
     feedbackContainer.innerHTML = i18next.t('loaded');
   };
 
+  const renderViewedPosts = (viewedPosts) => {
+    viewedPosts.map((id) => {
+      const el = document.querySelector(`a[data-id="${id}"]`);
+      el.classList.remove('font-weight-bold');
+    });
+  };
+
   const processStateHandler = (watchedState) => {
     if (watchedState.form.processState === 'empty' || watchedState.form.processState === 'filling') {
       submitButton.disabled = false;
@@ -133,6 +154,10 @@ export default () => {
 
     if (path === 'rssContent.feeds') {
       renderFeeds(watchedState.rssContent.feeds);
+    }
+
+    if (path === 'rssContent.viewedPosts') {
+      renderViewedPosts(watchedState.rssContent.viewedPosts);
     }
   });
 
