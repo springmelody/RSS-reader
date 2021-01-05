@@ -13,7 +13,6 @@ export default (state) => {
     itemEL.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
     const itemElLink = document.createElement('a');
     itemElLink.setAttribute('href', post.itemLink);
-    console.log(state.rssContent.viewedPosts);
     if (!state.rssContent.viewedPosts.includes(Number(post.id))) {
       itemElLink.setAttribute('class', 'font-weight-bold');
     }
