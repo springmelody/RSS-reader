@@ -8,7 +8,6 @@ export default (feeds) => {
   const list = document.createElement('ul');
   list.setAttribute('class', 'list-group mb-5');
   feeds.forEach((el) => {
-    // console.log(el);
     const item = document.createElement('li');
     item.setAttribute('class', 'list-group-item');
     const itemTitle = document.createElement('h3');

@@ -12,54 +12,42 @@ import renderPosts from './renderPosts.js';
 import renderFeeds from './renderFeeds.js';
 import resources from './locales/en.js';
 
-const form = document.querySelector('.rss-form');
-const input = form.querySelector('.form-control');
-const submitButton = form.querySelector('button[type="submit"]');
-// const corps = 'https://api.allorigins.win/raw?url=';
-const corps = 'http://cors-anywhere.herokuapp.com/';
-i18next.init({
-  lng: 'en',
-  debug: false,
-  resources,
-});
-
-const errorMessages = {
-  required: i18next.t('errorMessages.required'),
-  url: i18next.t('errorMessages.url'),
-  duplicate: i18next.t('duplicate'),
-  network: i18next.t('errorMessages.network'),
-};
-
-const buildSchema = (watchedState) => (
-  yup.object().shape({
-    text: yup.string()
-      .required(errorMessages.required)
-      .url(errorMessages.url)
-      .notOneOf(watchedState.rssContent.feedsUrl, errorMessages.duplicate),
-  }));
-
-const validate = (watchedState) => {
-  try {
-    const schema = buildSchema(watchedState);
-    schema.validateSync(watchedState.form);
-    return null;
-  } catch (err) {
-    return err.message;
-  }
-};
-
-
 export default () => {
-  $('#exampleModal').on('shown.bs.modal', function (event) {
-    const button = $(event.relatedTarget)
-    const recipient = button.data('id');
-    const postInfo = state.rssContent.posts.find((el) => Number(el.id) === recipient);
-    const modal = $(this);
-    modal.find('.modal-body').text(postInfo.itemDescription);
-    modal.find('.modal-title').text(postInfo.itemTitle);
-    modal.find('.full-article').attr('href', postInfo.itemLink);
-    watchedState.rssContent.viewedPosts.push(recipient);
-  })
+  const form = document.querySelector('.rss-form');
+  const input = form.querySelector('.form-control');
+  const submitButton = form.querySelector('button[type="submit"]');
+  const corps = 'http://cors-anywhere.herokuapp.com/';
+
+  i18next.init({
+    lng: 'en',
+    debug: false,
+    resources,
+  });
+
+  const errorMessages = {
+    required: i18next.t('errorMessages.required'),
+    url: i18next.t('errorMessages.url'),
+    duplicate: i18next.t('duplicate'),
+    network: i18next.t('errorMessages.network'),
+  };
+
+  const buildSchema = (watchedState) => (
+    yup.object().shape({
+      text: yup.string()
+        .required(errorMessages.required)
+        .url(errorMessages.url)
+        .notOneOf(watchedState.rssContent.feedsUrl, errorMessages.duplicate),
+    }));
+
+  const validate = (watchedState) => {
+    try {
+      const schema = buildSchema(watchedState);
+      schema.validateSync(watchedState.form);
+      return null;
+    } catch (err) {
+      return err.message;
+    }
+  };
 
   const state = {
     form: {
@@ -72,7 +60,7 @@ export default () => {
       feeds: [],
       posts: [],
       feedsUrl: [],
-      viewedPosts: [], // только зачем?
+      viewedPosts: [],
     },
   };
 
@@ -97,9 +85,6 @@ export default () => {
       case errorMessages.network:
         renderFeedback(errorType);
         break;
-      case null:
-        // console.log(null);
-        break;
       default:
         throw new Error(`Unknown errorType: ${errorType}`);
     }
@@ -114,7 +99,7 @@ export default () => {
   };
 
   const renderViewedPosts = (viewedPosts) => {
-    viewedPosts.map((id) => {
+    viewedPosts.forEach((id) => {
       const el = document.querySelector(`a[data-id="${id}"]`);
       el.classList.remove('font-weight-bold');
     });
@@ -149,7 +134,7 @@ export default () => {
     }
 
     if (path === 'rssContent.posts') {
-      renderPosts(watchedState.rssContent.posts);
+      renderPosts(watchedState);
     }
 
     if (path === 'rssContent.feeds') {
@@ -172,11 +157,16 @@ export default () => {
     }
   };
 
-  const inputHandler = ({ target: { value } }) => {
-    watchedState.form.text = value;
-    watchedState.form.processState = value === '' ? 'empty' : 'filling';
-    updateValidationState(watchedState);
-  };
+  $('#modalPreview').on('shown.bs.modal', (event) => {
+    const button = $(event.relatedTarget);
+    const recipient = button.data('id');
+    const postInfo = state.rssContent.posts.find((el) => Number(el.id) === recipient);
+    const modal = $('#modalPreview');
+    modal.find('.modal-body').text(postInfo.itemDescription);
+    modal.find('.modal-title').text(postInfo.itemTitle);
+    modal.find('.full-article').attr('href', postInfo.itemLink);
+    watchedState.rssContent.viewedPosts.push(recipient);
+  });
 
   const update = (url, maxPubDate, feedId) => {
     axios.get(url)
@@ -186,10 +176,8 @@ export default () => {
         const { itemsInfo } = newDataFeed;
         const newPost = itemsInfo
           .filter((el) => el.itemDate > maxPubDate)
-          .map((post) => ({...post, id:_.uniqueId(), feedId }));
-        // console.log('старые посты', state.rssContent.posts);
+          .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
         watchedState.rssContent.posts = [...newPost, ...watchedState.rssContent.posts];
-        // console.log('+ новый пост', state.rssContent.posts);
         const newMaxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
         setTimeout(() => update(url, newMaxPubDate, feedId), 5000);
       })
@@ -197,6 +185,12 @@ export default () => {
         watchedState.form.errorType = err.message;
         watchedState.form.processState = 'failed';
       });
+  };
+
+  const inputHandler = ({ target: { value } }) => {
+    watchedState.form.text = value;
+    watchedState.form.processState = value === '' ? 'empty' : 'filling';
+    updateValidationState(watchedState);
   };
 
   const formHandler = (e) => {
@@ -221,10 +215,9 @@ export default () => {
         const newFeed = {
           id: feedId, title, description,
         };
-        const newPosts = [...itemsInfo].map((post) => ({...post, id:_.uniqueId(), feedId }));
+        const newPosts = [...itemsInfo].map((post) => ({ ...post, id: _.uniqueId(), feedId }));
         watchedState.rssContent.feeds.push(newFeed);
         watchedState.rssContent.feedsUrl.push(rssUrl);
-        // watchedState.rssContent.posts = [...newPosts, ...watchedState.rssContent.posts]; => правильный вариант
         watchedState.rssContent.posts.unshift(...newPosts);
         watchedState.form.processState = 'finished';
         form.reset();
