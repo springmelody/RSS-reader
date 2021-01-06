@@ -19,5 +19,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Hexlet project check
+      - name: frontend_l3_rss_reader_project
         uses: hexlet/project-action@release
