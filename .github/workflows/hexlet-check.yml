@@ -12,6 +12,8 @@ on:
   push:
     branches:
       - '**'
+    tags:
+      - '**'
 
 jobs:
   build:
@@ -19,5 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: frontend_l3_rss_reader_project
+      - name: Hexlet project check
         uses: hexlet/project-action@release
+        with:
+          hexlet-id: ${{ secrets.HEXLET_ID }}
