@@ -5,5 +5,5 @@ build:
 	NODE_ENV=production npx webpack
 install:
 	npm install
-test:
-	npm test
+lint:
+	npx eslint .
