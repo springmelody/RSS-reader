@@ -5,49 +5,15 @@ import axios from 'axios';
 import * as yup from 'yup';
 import _ from 'lodash';
 import $ from 'jquery';
-import onChange from 'on-change';
 import i18next from 'i18next';
 import parse from './parse.js';
-import renderPosts from './renderPosts.js';
-import renderFeeds from './renderFeeds.js';
 import resources from './locales/en.js';
+import render from './view.js';
 
 export default () => {
   const form = document.querySelector('.rss-form');
   const input = form.querySelector('.form-control');
-  const submitButton = form.querySelector('button[type="submit"]');
   const corps = 'http://cors-anywhere.herokuapp.com/';
-
-  i18next.init({
-    lng: 'en',
-    debug: false,
-    resources,
-  });
-
-  const errorMessages = {
-    required: i18next.t('errorMessages.required'),
-    url: i18next.t('errorMessages.url'),
-    duplicate: i18next.t('duplicate'),
-    network: i18next.t('errorMessages.network'),
-  };
-
-  const buildSchema = (watchedState) => (
-    yup.object().shape({
-      text: yup.string()
-        .required(errorMessages.required)
-        .url(errorMessages.url)
-        .notOneOf(watchedState.rssContent.feedsUrl, errorMessages.duplicate),
-    }));
-
-  const validate = (watchedState) => {
-    try {
-      const schema = buildSchema(watchedState);
-      schema.validateSync(watchedState.form);
-      return null;
-    } catch (err) {
-      return err.message;
-    }
-  };
 
   const state = {
     form: {
@@ -64,90 +30,41 @@ export default () => {
     },
   };
 
-  const renderFeedback = (errorType) => {
-    const feedbackContainer = document.querySelector('.feedback');
-    feedbackContainer.classList.add('text-danger');
-    input.classList.add('is-invalid');
-    feedbackContainer.innerHTML = errorType;
-  };
+  const watchedState = render(state);
 
-  const renderErrors = (errorType) => {
-    switch (errorType) {
-      case errorMessages.required:
-        renderFeedback(errorType);
-        break;
-      case errorMessages.url:
-        renderFeedback(errorType);
-        break;
-      case errorMessages.duplicate:
-        renderFeedback(errorType);
-        break;
-      case errorMessages.network:
-        renderFeedback(errorType);
-        break;
-      default:
-        throw new Error(`Unknown errorType: ${errorType}`);
-    }
-  };
-
-  const renderSuccessMessage = () => {
-    const feedbackContainer = document.querySelector('.feedback');
-    feedbackContainer.classList.remove('text-danger');
-    input.classList.remove('is-invalid');
-    feedbackContainer.classList.add('text-success');
-    feedbackContainer.innerHTML = i18next.t('loaded');
-  };
-
-  const renderViewedPosts = (viewedPosts) => {
-    viewedPosts.forEach((id) => {
-      const el = document.querySelector(`a[data-id="${id}"]`);
-      el.classList.remove('font-weight-bold');
-    });
-  };
-
-  const processStateHandler = (watchedState) => {
-    if (watchedState.form.processState === 'empty' || watchedState.form.processState === 'filling') {
-      submitButton.disabled = false;
-    }
-
-    if (watchedState.form.processState === 'sending') {
-      submitButton.disabled = true;
-    }
-
-    if (watchedState.form.processState === 'sending' && watchedState.form.valid === false) {
-      renderErrors(watchedState.form.errorType);
-    }
-
-    if (watchedState.form.processState === 'finished') {
-      renderSuccessMessage();
-    }
-
-    if (watchedState.form.processState === 'failed') {
-      submitButton.disabled = false;
-      renderErrors(watchedState.form.errorType);
-    }
-  };
-
-  const watchedState = onChange(state, (path) => {
-    if (path === 'form.processState') {
-      processStateHandler(watchedState);
-    }
-
-    if (path === 'rssContent.posts') {
-      renderPosts(watchedState);
-    }
-
-    if (path === 'rssContent.feeds') {
-      renderFeeds(watchedState.rssContent.feeds);
-    }
-
-    if (path === 'rssContent.viewedPosts') {
-      renderViewedPosts(watchedState.rssContent.viewedPosts);
-    }
+  i18next.init({
+    lng: 'en',
+    debug: false,
+    resources,
   });
 
+  const errorMessages = {
+    required: i18next.t('errorMessages.required'),
+    url: i18next.t('errorMessages.url'),
+    duplicate: i18next.t('duplicate'),
+    network: i18next.t('errorMessages.network'),
+  };
+
+  const buildSchema = (validationState) => (
+    yup.object().shape({
+      text: yup.string()
+        .required(errorMessages.required)
+        .url(errorMessages.url)
+        .notOneOf(validationState.rssContent.feedsUrl, errorMessages.duplicate),
+    }));
+
+  const validate = (validationState) => {
+    try {
+      const schema = buildSchema(validationState);
+      schema.validateSync(validationState.form);
+      return null;
+    } catch (err) {
+      return err.message;
+    }
+  };
+
   const updateValidationState = (validationState) => {
-    const error = validate(state);
+    const error = validate(watchedState);
     if (error === null) {
       validationState.form.valid = true;
       validationState.form.errorType = null;
@@ -160,7 +77,7 @@ export default () => {
   $('#modalPreview').on('shown.bs.modal', (event) => {
     const button = $(event.relatedTarget);
     const recipient = button.data('id');
-    const postInfo = state.rssContent.posts.find((el) => Number(el.id) === recipient);
+    const postInfo = watchedState.rssContent.posts.find((el) => Number(el.id) === recipient);
     const modal = $('#modalPreview');
     modal.find('.modal-body').text(postInfo.itemDescription);
     modal.find('.modal-title').text(postInfo.itemTitle);
@@ -187,13 +104,13 @@ export default () => {
       });
   };
 
-  const inputHandler = ({ target: { value } }) => {
+  const handleInput = ({ target: { value } }) => {
     watchedState.form.text = value;
     watchedState.form.processState = value === '' ? 'empty' : 'filling';
     updateValidationState(watchedState);
   };
 
-  const formHandler = (e) => {
+  const handleForm = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const rssUrl = formData.get('url');
@@ -232,6 +149,6 @@ export default () => {
       });
   };
 
-  input.addEventListener('input', inputHandler);
-  form.addEventListener('submit', formHandler);
+  input.addEventListener('input', handleInput);
+  form.addEventListener('submit', handleForm);
 };

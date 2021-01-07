@@ -1,8 +1,10 @@
+import i18next from 'i18next';
+
 export default (state) => {
   const postsContainer = document.querySelector('.posts');
   postsContainer.innerHTML = '';
   const postsTitle = document.createElement('h2');
-  postsTitle.innerText = 'Posts';
+  postsTitle.innerText = i18next.t('postsTitle');
   postsContainer.appendChild(postsTitle);
 
   const postsList = state.rssContent.posts;

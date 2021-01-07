@@ -1,8 +1,10 @@
+import i18next from 'i18next';
+
 export default (feeds) => {
   const feedsContainer = document.querySelector('.feeds');
   feedsContainer.innerHTML = '';
   const feedsTitle = document.createElement('h2');
-  feedsTitle.innerText = 'Feeds';
+  feedsTitle.innerText = i18next.t('feedsTitle');
   feedsContainer.appendChild(feedsTitle);
 
   const list = document.createElement('ul');
