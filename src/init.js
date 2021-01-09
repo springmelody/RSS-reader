@@ -74,6 +74,12 @@ export default () => {
     }
   };
 
+  const handleInput = ({ target: { value } }) => {
+    watchedState.form.text = value;
+    watchedState.form.processState = value === '' ? 'empty' : 'filling';
+    updateValidationState(watchedState);
+  };
+
   $('#modalPreview').on('shown.bs.modal', (event) => {
     const button = $(event.relatedTarget);
     const recipient = button.data('id');
@@ -98,23 +104,17 @@ export default () => {
         const newMaxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
         setTimeout(() => update(url, newMaxPubDate, feedId), 5000);
       })
-      .catch((err) => {
-        watchedState.form.errorType = err.message;
+      .catch(() => {
+        watchedState.form.errorType = errorMessages.network;
         watchedState.form.processState = 'failed';
       });
-  };
-
-  const handleInput = ({ target: { value } }) => {
-    watchedState.form.text = value;
-    watchedState.form.processState = value === '' ? 'empty' : 'filling';
-    updateValidationState(watchedState);
   };
 
   const handleForm = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const rssUrl = formData.get('url');
-    const url = `${corps}${rssUrl}`;
+    const url = `${corps}${rssUrl}`.trim();
     watchedState.form.processState = 'sending';
 
     if (watchedState.form.valid === false) {
@@ -143,8 +143,8 @@ export default () => {
         const maxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
         setTimeout(() => update(url, maxPubDate, feedId), 5000);
       })
-      .catch((err) => {
-        watchedState.form.errorType = err.message;
+      .catch(() => {
+        watchedState.form.errorType = errorMessages.network;
         watchedState.form.processState = 'failed';
       });
   };

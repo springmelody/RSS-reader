@@ -67,13 +67,6 @@ const renderPosts = (state) => {
   postsContainer.appendChild(listEl);
 };
 
-const errorMessages = {
-  required: i18next.t('errorMessages.required'),
-  url: i18next.t('errorMessages.url'),
-  duplicate: i18next.t('duplicate'),
-  network: i18next.t('errorMessages.network'),
-};
-
 const renderViewedPosts = (viewedPosts) => {
   viewedPosts.forEach((id) => {
     const el = document.querySelector(`a[data-id="${id}"]`);
@@ -81,60 +74,37 @@ const renderViewedPosts = (viewedPosts) => {
   });
 };
 
-const renderFeedback = (errorType) => {
-  const feedbackContainer = document.querySelector('.feedback');
-  feedbackContainer.classList.add('text-danger');
-  input.classList.add('is-invalid');
-  feedbackContainer.innerHTML = errorType;
-};
-
-const renderErrors = (errorType) => {
-  switch (errorType) {
-    case errorMessages.required:
-      renderFeedback(errorType);
-      break;
-    case errorMessages.url:
-      renderFeedback(errorType);
-      break;
-    case errorMessages.duplicate:
-      renderFeedback(errorType);
-      break;
-    case errorMessages.network:
-      renderFeedback(errorType);
-      break;
-    default:
-      throw new Error(`Unknown errorType: ${errorType}`);
-  }
-};
-
-const renderSuccessMessage = () => {
-  const feedbackContainer = document.querySelector('.feedback');
-  feedbackContainer.classList.remove('text-danger');
-  input.classList.remove('is-invalid');
-  feedbackContainer.classList.add('text-success');
-  feedbackContainer.innerHTML = i18next.t('loaded');
-};
-
 const handleProcessState = (watchedState) => {
-  if (watchedState.form.processState === 'empty' || watchedState.form.processState === 'filling') {
+  const feedbackContainer = document.querySelector('.feedback');
+
+  if (watchedState.form.processState === 'empty') {
+    submitButton.disabled = false;
+    input.value = '';
+  }
+
+  if (watchedState.form.processState === 'filling') {
     submitButton.disabled = false;
   }
 
   if (watchedState.form.processState === 'sending') {
     submitButton.disabled = true;
-  }
-
-  if (watchedState.form.processState === 'sending' && watchedState.form.valid === false) {
-    renderErrors(watchedState.form.errorType);
+    feedbackContainer.classList.add('text-danger');
+    input.classList.add('is-invalid');
+    feedbackContainer.innerHTML = watchedState.form.errorType;
   }
 
   if (watchedState.form.processState === 'finished') {
-    renderSuccessMessage();
+    feedbackContainer.classList.remove('text-danger');
+    input.classList.remove('is-invalid');
+    feedbackContainer.classList.add('text-success');
+    feedbackContainer.innerHTML = i18next.t('loaded');
   }
 
   if (watchedState.form.processState === 'failed') {
     submitButton.disabled = false;
-    renderErrors(watchedState.form.errorType);
+    feedbackContainer.classList.add('text-danger');
+    input.classList.add('is-invalid');
+    feedbackContainer.innerHTML = watchedState.form.errorType;
   }
 };
 
@@ -154,9 +124,7 @@ const render = (state) => onChange(state, (path) => {
       renderViewedPosts(watchedState.rssContent.viewedPosts);
       break;
     default:
-      console.log(`Unknown path: ${path}`);
       break;
-      // throw new Error(`Unknown path: ${path}`);
   }
 });
 
