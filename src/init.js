@@ -74,11 +74,6 @@ export default () => {
     }
   };
 
-  const handleInput = ({ target: { value } }) => {
-    watchedState.form.text = value;
-    watchedState.form.processState = value === '' ? 'empty' : 'filling';
-  };
-
   $('#modalPreview').on('shown.bs.modal', (event) => {
     const button = $(event.relatedTarget);
     const recipient = button.data('id');
@@ -109,7 +104,13 @@ export default () => {
       });
   };
 
-  const handleForm = (e) => {
+  input.addEventListener('input', (e) => {
+    const { value } = e.target;
+    watchedState.form.text = value;
+    watchedState.form.processState = value === '' ? 'empty' : 'filling';
+  });
+
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
     validateState(watchedState);
     const formData = new FormData(e.target);
@@ -147,8 +148,5 @@ export default () => {
         watchedState.form.errorType = errorMessages.network;
         watchedState.form.processState = 'failed';
       });
-  };
-
-  input.addEventListener('input', handleInput);
-  form.addEventListener('submit', handleForm);
+  });
 };
