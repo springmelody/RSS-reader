@@ -1,16 +1,9 @@
 import onChange from 'on-change';
 import i18next from 'i18next';
-import resources from './locales/en';
 
 const form = document.querySelector('.rss-form');
 const input = form.querySelector('.form-control');
 const submitButton = form.querySelector('button[type="submit"]');
-
-i18next.init({
-  lng: 'en',
-  debug: false,
-  resources,
-});
 
 const renderFeeds = (feeds) => {
   const feedsContainer = document.querySelector('.feeds');
@@ -76,35 +69,34 @@ const renderViewedPosts = (viewedPosts) => {
 
 const handleProcessState = (watchedState) => {
   const feedbackContainer = document.querySelector('.feedback');
-
-  if (watchedState.form.processState === 'empty') {
-    submitButton.disabled = false;
-    input.value = '';
-  }
-
-  if (watchedState.form.processState === 'filling') {
-    submitButton.disabled = false;
-  }
-
-  if (watchedState.form.processState === 'sending') {
-    submitButton.disabled = true;
-    feedbackContainer.classList.add('text-danger');
-    input.classList.add('is-invalid');
-    feedbackContainer.innerHTML = watchedState.form.errorType;
-  }
-
-  if (watchedState.form.processState === 'finished') {
-    feedbackContainer.classList.remove('text-danger');
-    input.classList.remove('is-invalid');
-    feedbackContainer.classList.add('text-success');
-    feedbackContainer.innerHTML = i18next.t('loaded');
-  }
-
-  if (watchedState.form.processState === 'failed') {
-    submitButton.disabled = false;
-    feedbackContainer.classList.add('text-danger');
-    input.classList.add('is-invalid');
-    feedbackContainer.innerHTML = watchedState.form.errorType;
+  switch (watchedState.form.processState) {
+    case 'empty':
+      submitButton.disabled = false;
+      input.value = '';
+      break;
+    case 'filling':
+      submitButton.disabled = false;
+      break;
+    case 'sending':
+      submitButton.disabled = true;
+      feedbackContainer.classList.add('text-danger');
+      input.classList.add('is-invalid');
+      feedbackContainer.innerHTML = watchedState.form.errorType;
+      break;
+    case 'finished':
+      feedbackContainer.classList.remove('text-danger');
+      input.classList.remove('is-invalid');
+      feedbackContainer.classList.add('text-success');
+      feedbackContainer.innerHTML = i18next.t('loaded');
+      break;
+    case 'failed':
+      submitButton.disabled = false;
+      feedbackContainer.classList.add('text-danger');
+      input.classList.add('is-invalid');
+      feedbackContainer.innerHTML = watchedState.form.errorType;
+      break;
+    default:
+      break;
   }
 };
 

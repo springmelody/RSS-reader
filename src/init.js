@@ -63,7 +63,7 @@ export default () => {
     }
   };
 
-  const updateValidationState = (validationState) => {
+  const validateState = (validationState) => {
     const error = validate(watchedState);
     if (error === null) {
       validationState.form.valid = true;
@@ -77,7 +77,6 @@ export default () => {
   const handleInput = ({ target: { value } }) => {
     watchedState.form.text = value;
     watchedState.form.processState = value === '' ? 'empty' : 'filling';
-    updateValidationState(watchedState);
   };
 
   $('#modalPreview').on('shown.bs.modal', (event) => {
@@ -112,6 +111,7 @@ export default () => {
 
   const handleForm = (e) => {
     e.preventDefault();
+    validateState(watchedState);
     const formData = new FormData(e.target);
     const rssUrl = formData.get('url');
     const url = `${corps}${rssUrl}`.trim();
