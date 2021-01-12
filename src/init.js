@@ -13,7 +13,7 @@ import render from './view.js';
 export default () => {
   const form = document.querySelector('.rss-form');
   const input = form.querySelector('.form-control');
-  const corps = 'http://cors-anywhere.herokuapp.com/';
+  const crossOrigin = 'http://cors-anywhere.herokuapp.com/';
   const delayTime = 5000;
 
   const state = {
@@ -75,6 +75,8 @@ export default () => {
     }
   };
 
+  const buildUrl = (corps, rssUrl) => `${corps}${rssUrl}`.trim();
+
   $('#modalPreview').on('shown.bs.modal', (event) => {
     const button = $(event.relatedTarget);
     const recipient = button.data('id');
@@ -116,7 +118,7 @@ export default () => {
     validateState(watchedState);
     const formData = new FormData(e.target);
     const rssUrl = formData.get('url');
-    const url = `${corps}${rssUrl}`.trim();
+    const url = buildUrl(crossOrigin, rssUrl);
     watchedState.form.processState = 'sending';
 
     if (watchedState.form.valid === false) {
