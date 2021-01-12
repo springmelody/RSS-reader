@@ -73,14 +73,13 @@ const handleProcessState = (watchedState) => {
     case 'empty':
       submitButton.disabled = false;
       input.value = '';
+      input.focus();
       break;
     case 'filling':
       submitButton.disabled = false;
       break;
     case 'sending':
       submitButton.disabled = true;
-      feedbackContainer.classList.add('text-danger');
-      input.classList.add('is-invalid');
       feedbackContainer.innerHTML = watchedState.form.errorType;
       break;
     case 'finished':

@@ -14,6 +14,7 @@ export default () => {
   const form = document.querySelector('.rss-form');
   const input = form.querySelector('.form-control');
   const corps = 'http://cors-anywhere.herokuapp.com/';
+  const delayTime = 5000;
 
   const state = {
     form: {
@@ -85,7 +86,7 @@ export default () => {
     watchedState.rssContent.viewedPosts.push(recipient);
   });
 
-  const update = (url, maxPubDate, feedId) => {
+  const updatePosts = (url, maxPubDate, feedId) => {
     axios.get(url)
       .then(({ data }) => data)
       .then((data) => {
@@ -96,7 +97,7 @@ export default () => {
           .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
         watchedState.rssContent.posts = [...newPost, ...watchedState.rssContent.posts];
         const newMaxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
-        setTimeout(() => update(url, newMaxPubDate, feedId), 5000);
+        setTimeout(() => updatePosts(url, newMaxPubDate, feedId), delayTime);
       })
       .catch(() => {
         watchedState.form.errorType = errorMessages.network;
@@ -138,11 +139,9 @@ export default () => {
         watchedState.rssContent.feedsUrl.push(rssUrl);
         watchedState.rssContent.posts.unshift(...newPosts);
         watchedState.form.processState = 'finished';
-        form.reset();
-        input.focus();
         watchedState.form.processState = 'empty';
         const maxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
-        setTimeout(() => update(url, maxPubDate, feedId), 5000);
+        setTimeout(() => updatePosts(url, maxPubDate, feedId), delayTime);
       })
       .catch(() => {
         watchedState.form.errorType = errorMessages.network;
