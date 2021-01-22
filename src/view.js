@@ -18,10 +18,10 @@ const renderFeeds = (feeds) => {
     const item = document.createElement('li');
     item.setAttribute('class', 'list-group-item');
     const itemTitle = document.createElement('h3');
-    itemTitle.innerHTML = el.title;
+    itemTitle.innerText = el.title;
     item.appendChild(itemTitle);
     const itemDescEl = document.createElement('p');
-    itemDescEl.innerHTML = el.description;
+    itemDescEl.innerText = el.description;
     item.appendChild(itemDescEl);
     list.appendChild(item);
     feedsContainer.appendChild(list);
@@ -42,29 +42,21 @@ const renderPosts = (state) => {
     itemEL.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
     const itemElLink = document.createElement('a');
     itemElLink.setAttribute('href', post.itemLink);
-    if (!state.rssContent.viewedPosts.includes(Number(post.id))) {
-      itemElLink.setAttribute('class', 'font-weight-bold');
-    }
+    const className = state.rssContent.viewedPosts.has(Number(post.id)) ? 'font-weight-normal' : 'font-weight-bold';
+    itemElLink.setAttribute('class', className);
     itemElLink.setAttribute('data-id', post.id);
-    itemElLink.innerHTML = post.itemTitle;
+    itemElLink.innerText = post.itemTitle;
     const itemElBtn = document.createElement('button');
     itemElBtn.setAttribute('class', 'btn btn-primary btn-sm');
     itemElBtn.setAttribute('data-toggle', 'modal');
     itemElBtn.setAttribute('data-target', '#modalPreview');
     itemElBtn.setAttribute('data-id', post.id);
-    itemElBtn.innerHTML = 'Preview';
+    itemElBtn.innerText = 'Preview';
     itemEL.appendChild(itemElLink);
     itemEL.appendChild(itemElBtn);
     listEl.appendChild(itemEL);
   });
   postsContainer.appendChild(listEl);
-};
-
-const renderViewedPosts = (viewedPosts) => {
-  viewedPosts.forEach((id) => {
-    const el = document.querySelector(`a[data-id="${id}"]`);
-    el.classList.remove('font-weight-bold');
-  });
 };
 
 const handleProcessState = (watchedState) => {
@@ -80,22 +72,22 @@ const handleProcessState = (watchedState) => {
       break;
     case 'sending':
       submitButton.disabled = true;
-      feedbackContainer.innerHTML = watchedState.form.errorType;
+      feedbackContainer.innerText = watchedState.form.errorType;
       break;
     case 'finished':
       feedbackContainer.classList.remove('text-danger');
       input.classList.remove('is-invalid');
       feedbackContainer.classList.add('text-success');
-      feedbackContainer.innerHTML = i18next.t('loaded');
+      feedbackContainer.innerText = i18next.t('loaded');
       break;
     case 'failed':
       submitButton.disabled = false;
       feedbackContainer.classList.add('text-danger');
       input.classList.add('is-invalid');
-      feedbackContainer.innerHTML = watchedState.form.errorType;
+      feedbackContainer.innerText = watchedState.form.errorType;
       break;
     default:
-      break;
+      throw new Error(`Unknown processState: ${watchedState.form.processState}`);
   }
 };
 
@@ -112,7 +104,7 @@ const render = (state) => onChange(state, (path) => {
       renderFeeds(watchedState.rssContent.feeds);
       break;
     case 'rssContent.viewedPosts':
-      renderViewedPosts(watchedState.rssContent.viewedPosts);
+      renderPosts(watchedState);
       break;
     default:
       break;
@@ -120,3 +112,4 @@ const render = (state) => onChange(state, (path) => {
 });
 
 export default render;
+// export default watchedState(initState, elements);
