@@ -1,9 +1,14 @@
 import onChange from 'on-change';
 import i18next from 'i18next';
-
+// export default (state, elements) => {
+//   // весь код
+//
+//   return watchedState;
+// }
 const form = document.querySelector('.rss-form');
 const input = form.querySelector('.form-control');
 const submitButton = form.querySelector('button[type="submit"]');
+const feedbackContainer = document.querySelector('.feedback');
 
 const renderFeeds = (feeds) => {
   const feedsContainer = document.querySelector('.feeds');
@@ -60,42 +65,52 @@ const renderPosts = (state) => {
 };
 
 const handleProcessState = (watchedState) => {
-  const feedbackContainer = document.querySelector('.feedback');
-  switch (watchedState.form.processState) {
-    case 'empty':
+  // console.log('handleProcessState', watchedState.formProcessState);
+  switch (watchedState.formProcessState) {
+    case 'loading':
+      submitButton.disabled = true;
+      break;
+    case 'idle':
       submitButton.disabled = false;
+      feedbackContainer.classList.remove('text-danger');
+      feedbackContainer.classList.add('text-success');
+      feedbackContainer.innerText = i18next.t('loaded');
       input.value = '';
       input.focus();
       break;
-    case 'filling':
-      submitButton.disabled = false;
-      break;
-    case 'sending':
-      submitButton.disabled = true;
-      feedbackContainer.innerText = watchedState.form.errorType;
-      break;
-    case 'finished':
-      feedbackContainer.classList.remove('text-danger');
-      input.classList.remove('is-invalid');
-      feedbackContainer.classList.add('text-success');
-      feedbackContainer.innerText = i18next.t('loaded');
-      break;
     case 'failed':
       submitButton.disabled = false;
+      feedbackContainer.classList.remove('text-success');
       feedbackContainer.classList.add('text-danger');
       input.classList.add('is-invalid');
       feedbackContainer.innerText = watchedState.form.errorType;
       break;
     default:
-      throw new Error(`Unknown processState: ${watchedState.form.processState}`);
+      throw new Error(`Unknown formProcessState: ${watchedState.formProcessState}`);
+  }
+};
+
+const handleValid = (watchedState) => {
+  // console.log('valid', watchedState.form.valid);
+  // console.log('errorType', watchedState.form.errorType);
+  if (watchedState.form.valid === 'valid') {
+    input.classList.remove('is-invalid');
+  } else if (watchedState.form.valid === 'invalid') {
+    input.classList.add('is-invalid');
+    feedbackContainer.classList.remove('text-success');
+    feedbackContainer.classList.add('text-danger');
+    feedbackContainer.innerText = watchedState.form.errorType;
   }
 };
 
 const render = (state) => onChange(state, (path) => {
   const watchedState = render(state);
   switch (path) {
-    case 'form.processState':
+    case 'formProcessState':
       handleProcessState(watchedState);
+      break;
+    case 'form.valid':
+      handleValid(watchedState);
       break;
     case 'rssContent.posts':
       renderPosts(watchedState);
@@ -106,10 +121,37 @@ const render = (state) => onChange(state, (path) => {
     case 'rssContent.viewedPosts':
       renderPosts(watchedState);
       break;
+    case 'form.errorType':
+      handleValid(watchedState);
+      break;
     default:
       break;
   }
 });
+
+//  const watchedState = onChange(state, (path) => {
+// switch (path) {
+//     case 'formProcessState':
+//       handleProcessState(watchedState);
+//       break;
+//     case 'form.valid':
+//       // handleProcessState(watchedState);
+//       break;
+//     case 'rssContent.posts':
+//       renderPosts(watchedState);
+//       break;
+//     case 'rssContent.feeds':
+//       renderFeeds(watchedState.rssContent.feeds);
+//       break;
+//     case 'rssContent.viewedPosts':
+//       renderPosts(watchedState);
+//       break;
+//     default:
+//       break;
+//   }
+// });
+
+// return watchedState;
 
 export default render;
 // export default watchedState(initState, elements);

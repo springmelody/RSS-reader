@@ -9,6 +9,7 @@ const en = {
       url: 'Must be valid url',
       duplicate: 'Rss already exists',
       network: 'Network Error',
+      valid: 'This source doesn\'t contain valid rss',
     },
   },
 };
