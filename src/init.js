@@ -7,11 +7,16 @@ import $ from 'jquery';
 import i18next from 'i18next';
 import parse from './parse.js';
 import resources from './locales/en.js';
-import render from './view.js';
-// import watch from './view.js';
+import watch from './view.js';
 
 export default () => {
-  const form = document.querySelector('.rss-form');
+  const elements = {
+    form: document.querySelector('.rss-form'),
+    input: document.querySelector('.form-control'),
+    submitButton: document.querySelector('button[type="submit"]'),
+    feedbackContainer: document.querySelector('.feedback'),
+  };
+
   const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/raw?url=';
   // const crossOrigin = 'https://cors-anywhere.herokuapp.com/';
   const delayTime = 5000;
@@ -48,8 +53,7 @@ export default () => {
       },
     };
 
-    // const watchedState = watch(initState, elements);
-    const watchedState = render(state);
+    const watchedState = watch(state, elements);
 
     const validateUrl = (url) => {
       try {
@@ -101,7 +105,7 @@ export default () => {
       return i18next.t('errorMessages.valid');
     };
 
-    form.addEventListener('submit', (e) => {
+    elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
       const rssUrl = formData.get('url');

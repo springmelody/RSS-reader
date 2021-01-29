@@ -1,157 +1,120 @@
 import onChange from 'on-change';
 import i18next from 'i18next';
-// export default (state, elements) => {
-//   // весь код
-//
-//   return watchedState;
-// }
-const form = document.querySelector('.rss-form');
-const input = form.querySelector('.form-control');
-const submitButton = form.querySelector('button[type="submit"]');
-const feedbackContainer = document.querySelector('.feedback');
 
-const renderFeeds = (feeds) => {
-  const feedsContainer = document.querySelector('.feeds');
-  feedsContainer.innerHTML = '';
-  const feedsTitle = document.createElement('h2');
-  feedsTitle.innerText = i18next.t('feedsTitle');
-  feedsContainer.appendChild(feedsTitle);
+export default (state, elements) => {
+  const { input, submitButton, feedbackContainer } = elements;
 
-  const list = document.createElement('ul');
-  list.setAttribute('class', 'list-group mb-5');
-  feeds.forEach((el) => {
-    const item = document.createElement('li');
-    item.setAttribute('class', 'list-group-item');
-    const itemTitle = document.createElement('h3');
-    itemTitle.innerText = el.title;
-    item.appendChild(itemTitle);
-    const itemDescEl = document.createElement('p');
-    itemDescEl.innerText = el.description;
-    item.appendChild(itemDescEl);
-    list.appendChild(item);
-    feedsContainer.appendChild(list);
-  });
-};
+  const renderFeeds = (feeds) => {
+    const feedsContainer = document.querySelector('.feeds');
+    feedsContainer.innerHTML = '';
+    const feedsTitle = document.createElement('h2');
+    feedsTitle.innerText = i18next.t('feedsTitle');
+    feedsContainer.appendChild(feedsTitle);
 
-const renderPosts = (state) => {
-  const postsContainer = document.querySelector('.posts');
-  postsContainer.innerHTML = '';
-  const postsTitle = document.createElement('h2');
-  postsTitle.innerText = i18next.t('postsTitle');
-  postsContainer.appendChild(postsTitle);
-  const postsList = state.rssContent.posts;
-  const listEl = document.createElement('ul');
-  listEl.setAttribute('class', 'list-group');
-  postsList.forEach((post) => {
-    const itemEL = document.createElement('li');
-    itemEL.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
-    const itemElLink = document.createElement('a');
-    itemElLink.setAttribute('href', post.itemLink);
-    const className = state.rssContent.viewedPosts.has(Number(post.id)) ? 'font-weight-normal' : 'font-weight-bold';
-    itemElLink.setAttribute('class', className);
-    itemElLink.setAttribute('data-id', post.id);
-    itemElLink.innerText = post.itemTitle;
-    const itemElBtn = document.createElement('button');
-    itemElBtn.setAttribute('class', 'btn btn-primary btn-sm');
-    itemElBtn.setAttribute('data-toggle', 'modal');
-    itemElBtn.setAttribute('data-target', '#modalPreview');
-    itemElBtn.setAttribute('data-id', post.id);
-    itemElBtn.innerText = 'Preview';
-    itemEL.appendChild(itemElLink);
-    itemEL.appendChild(itemElBtn);
-    listEl.appendChild(itemEL);
-  });
-  postsContainer.appendChild(listEl);
-};
+    const list = document.createElement('ul');
+    list.setAttribute('class', 'list-group mb-5');
+    feeds.forEach((el) => {
+      const item = document.createElement('li');
+      item.setAttribute('class', 'list-group-item');
+      const itemTitle = document.createElement('h3');
+      itemTitle.innerText = el.title;
+      item.appendChild(itemTitle);
+      const itemDescEl = document.createElement('p');
+      itemDescEl.innerText = el.description;
+      item.appendChild(itemDescEl);
+      list.appendChild(item);
+      feedsContainer.appendChild(list);
+    });
+  };
 
-const handleProcessState = (watchedState) => {
-  // console.log('handleProcessState', watchedState.formProcessState);
-  switch (watchedState.formProcessState) {
-    case 'loading':
-      submitButton.disabled = true;
-      break;
-    case 'idle':
-      submitButton.disabled = false;
-      feedbackContainer.classList.remove('text-danger');
-      feedbackContainer.classList.add('text-success');
-      feedbackContainer.innerText = i18next.t('loaded');
-      input.value = '';
-      input.focus();
-      break;
-    case 'failed':
-      submitButton.disabled = false;
+  const renderPosts = (rssContent) => {
+    const postsContainer = document.querySelector('.posts');
+    postsContainer.innerHTML = '';
+    const postsTitle = document.createElement('h2');
+    postsTitle.innerText = i18next.t('postsTitle');
+    postsContainer.appendChild(postsTitle);
+    const postsList = rssContent.posts;
+    const listEl = document.createElement('ul');
+    listEl.setAttribute('class', 'list-group');
+    postsList.forEach((post) => {
+      const itemEL = document.createElement('li');
+      itemEL.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
+      const itemElLink = document.createElement('a');
+      itemElLink.setAttribute('href', post.itemLink);
+      const className = rssContent.viewedPosts.has(Number(post.id)) ? 'font-weight-normal' : 'font-weight-bold';
+      itemElLink.setAttribute('class', className);
+      itemElLink.setAttribute('data-id', post.id);
+      itemElLink.innerText = post.itemTitle;
+      const itemElBtn = document.createElement('button');
+      itemElBtn.setAttribute('class', 'btn btn-primary btn-sm');
+      itemElBtn.setAttribute('data-toggle', 'modal');
+      itemElBtn.setAttribute('data-target', '#modalPreview');
+      itemElBtn.setAttribute('data-id', post.id);
+      itemElBtn.innerText = 'Preview';
+      itemEL.appendChild(itemElLink);
+      itemEL.appendChild(itemElBtn);
+      listEl.appendChild(itemEL);
+    });
+    postsContainer.appendChild(listEl);
+  };
+
+  const handleProcessState = (watchedState) => {
+    switch (watchedState.formProcessState) {
+      case 'loading':
+        submitButton.disabled = true;
+        break;
+      case 'idle':
+        submitButton.disabled = false;
+        feedbackContainer.classList.remove('text-danger');
+        feedbackContainer.classList.add('text-success');
+        feedbackContainer.innerText = i18next.t('loaded');
+        input.value = '';
+        input.focus();
+        break;
+      case 'failed':
+        submitButton.disabled = false;
+        feedbackContainer.classList.remove('text-success');
+        feedbackContainer.classList.add('text-danger');
+        input.classList.add('is-invalid');
+        feedbackContainer.innerText = watchedState.form.errorType;
+        break;
+      default:
+        throw new Error(`Unknown formProcessState: ${watchedState.formProcessState}`);
+    }
+  };
+
+  const handleValid = (watchedState) => {
+    if (watchedState.form.valid === 'valid') {
+      input.classList.remove('is-invalid');
+    } else if (watchedState.form.valid === 'invalid') {
+      input.classList.add('is-invalid');
       feedbackContainer.classList.remove('text-success');
       feedbackContainer.classList.add('text-danger');
-      input.classList.add('is-invalid');
       feedbackContainer.innerText = watchedState.form.errorType;
-      break;
-    default:
-      throw new Error(`Unknown formProcessState: ${watchedState.formProcessState}`);
-  }
+    }
+  };
+
+  const watchedState = onChange(state, (path) => {
+    switch (path) {
+      case 'formProcessState':
+        handleProcessState(watchedState);
+        break;
+      case 'form.valid':
+        handleValid(watchedState);
+        break;
+      case 'rssContent.posts':
+        renderPosts(watchedState.rssContent);
+        break;
+      case 'rssContent.feeds':
+        renderFeeds(watchedState.rssContent.feeds);
+        break;
+      case 'rssContent.viewedPosts':
+        renderPosts(watchedState);
+        break;
+      default:
+        break;
+    }
+  });
+
+  return watchedState;
 };
-
-const handleValid = (watchedState) => {
-  // console.log('valid', watchedState.form.valid);
-  // console.log('errorType', watchedState.form.errorType);
-  if (watchedState.form.valid === 'valid') {
-    input.classList.remove('is-invalid');
-  } else if (watchedState.form.valid === 'invalid') {
-    input.classList.add('is-invalid');
-    feedbackContainer.classList.remove('text-success');
-    feedbackContainer.classList.add('text-danger');
-    feedbackContainer.innerText = watchedState.form.errorType;
-  }
-};
-
-const render = (state) => onChange(state, (path) => {
-  const watchedState = render(state);
-  switch (path) {
-    case 'formProcessState':
-      handleProcessState(watchedState);
-      break;
-    case 'form.valid':
-      handleValid(watchedState);
-      break;
-    case 'rssContent.posts':
-      renderPosts(watchedState);
-      break;
-    case 'rssContent.feeds':
-      renderFeeds(watchedState.rssContent.feeds);
-      break;
-    case 'rssContent.viewedPosts':
-      renderPosts(watchedState);
-      break;
-    case 'form.errorType':
-      handleValid(watchedState);
-      break;
-    default:
-      break;
-  }
-});
-
-//  const watchedState = onChange(state, (path) => {
-// switch (path) {
-//     case 'formProcessState':
-//       handleProcessState(watchedState);
-//       break;
-//     case 'form.valid':
-//       // handleProcessState(watchedState);
-//       break;
-//     case 'rssContent.posts':
-//       renderPosts(watchedState);
-//       break;
-//     case 'rssContent.feeds':
-//       renderFeeds(watchedState.rssContent.feeds);
-//       break;
-//     case 'rssContent.viewedPosts':
-//       renderPosts(watchedState);
-//       break;
-//     default:
-//       break;
-//   }
-// });
-
-// return watchedState;
-
-export default render;
-// export default watchedState(initState, elements);
