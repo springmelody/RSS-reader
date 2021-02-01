@@ -17,8 +17,7 @@ export default () => {
     feedbackContainer: document.querySelector('.feedback'),
   };
 
-  const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/raw?url=';
-  // const crossOrigin = 'https://cors-anywhere.herokuapp.com/';
+  const crossOrigin = 'https://cors-anywhere.herokuapp.com/';
   const delayTime = 5000;
 
   const buildUrl = (rssUrl) => `${crossOrigin}${rssUrl}`.trim();

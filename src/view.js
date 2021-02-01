@@ -27,13 +27,13 @@ export default (state, elements) => {
     });
   };
 
-  const renderPosts = (rssContent) => {
+  const renderPosts = (watchedState) => {
     const postsContainer = document.querySelector('.posts');
     postsContainer.innerHTML = '';
     const postsTitle = document.createElement('h2');
     postsTitle.innerText = i18next.t('postsTitle');
     postsContainer.appendChild(postsTitle);
-    const postsList = rssContent.posts;
+    const postsList = watchedState.rssContent.posts;
     const listEl = document.createElement('ul');
     listEl.setAttribute('class', 'list-group');
     postsList.forEach((post) => {
@@ -41,7 +41,7 @@ export default (state, elements) => {
       itemEL.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
       const itemElLink = document.createElement('a');
       itemElLink.setAttribute('href', post.itemLink);
-      const className = rssContent.viewedPosts.has(Number(post.id)) ? 'font-weight-normal' : 'font-weight-bold';
+      const className = watchedState.rssContent.viewedPosts.has(Number(post.id)) ? 'font-weight-normal' : 'font-weight-bold';
       itemElLink.setAttribute('class', className);
       itemElLink.setAttribute('data-id', post.id);
       itemElLink.innerText = post.itemTitle;
@@ -103,7 +103,7 @@ export default (state, elements) => {
         handleValid(watchedState);
         break;
       case 'rssContent.posts':
-        renderPosts(watchedState.rssContent);
+        renderPosts(watchedState);
         break;
       case 'rssContent.feeds':
         renderFeeds(watchedState.rssContent.feeds);
