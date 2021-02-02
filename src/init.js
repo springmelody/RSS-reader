@@ -83,9 +83,9 @@ export default () => {
         .then(({ data }) => {
           const newDataFeed = parse(data);
           const { itemsInfo } = newDataFeed;
-          const newPost = itemsInfo
-            .filter((el) => el.itemDate > maxPubDate)
-            .map((post) => ({ ...post, id: _.uniqueId(), feedId }));
+          const oldPosts = watchedState.rssContent.posts.filter((el) => el.feedId === feedId);
+          const newItems = _.differenceBy(itemsInfo, oldPosts, 'itemLink');
+          const newPost = newItems.map((post) => ({ ...post, id: _.uniqueId(), feedId }))
           watchedState.rssContent.posts = [...newPost, ...watchedState.rssContent.posts];
           const newMaxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
           setTimeout(() => updatePosts(url, newMaxPubDate, feedId), delayTime);
