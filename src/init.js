@@ -84,9 +84,9 @@ export default () => {
           const newDataFeed = parse(data);
           const { itemsInfo } = newDataFeed;
           const oldPosts = watchedState.rssContent.posts.filter((el) => el.feedId === feedId);
-          const newItems = _.differenceBy(itemsInfo, oldPosts,'itemLink');
+          const newItems = _.differenceBy(itemsInfo, oldPosts, 'itemLink');
           if (newItems.length !== 0) {
-            const newPost = newItems.map((post) => ({ ...post, id: _.uniqueId(), feedId }))
+            const newPost = newItems.map((post) => ({ ...post, id: _.uniqueId(), feedId }));
             watchedState.rssContent.posts = [...newPost, ...watchedState.rssContent.posts];
           }
           setTimeout(() => updatePosts(url, feedId), delayTime);
@@ -129,7 +129,6 @@ export default () => {
             watchedState.rssContent.feedsUrl.push(rssUrl);
             watchedState.rssContent.posts.unshift(...newPosts);
             watchedState.formProcessState = 'idle';
-            const maxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
             setTimeout(() => updatePosts(url, feedId), delayTime);
           })
           .catch((err) => {
