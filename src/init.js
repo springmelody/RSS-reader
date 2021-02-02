@@ -18,7 +18,6 @@ export default () => {
   };
 
   const crossOrigin = 'https://cors-anywhere.herokuapp.com/';
-  // const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/raw?url=';
   const delayTime = 5000;
 
   const buildUrl = (rssUrl) => `${crossOrigin}${rssUrl}`.trim();
