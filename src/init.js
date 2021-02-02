@@ -18,6 +18,7 @@ export default () => {
   };
 
   const crossOrigin = 'https://cors-anywhere.herokuapp.com/';
+  // const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/raw?url=';
   const delayTime = 5000;
 
   const buildUrl = (rssUrl) => `${crossOrigin}${rssUrl}`.trim();
@@ -78,17 +79,18 @@ export default () => {
       watchedState.rssContent.viewedPosts.add(recipient);
     });
 
-    const updatePosts = (url, maxPubDate, feedId) => {
+    const updatePosts = (url, feedId) => {
       axios.get(url)
         .then(({ data }) => {
           const newDataFeed = parse(data);
           const { itemsInfo } = newDataFeed;
           const oldPosts = watchedState.rssContent.posts.filter((el) => el.feedId === feedId);
-          const newItems = _.differenceBy(itemsInfo, oldPosts, 'itemLink');
-          const newPost = newItems.map((post) => ({ ...post, id: _.uniqueId(), feedId }))
-          watchedState.rssContent.posts = [...newPost, ...watchedState.rssContent.posts];
-          const newMaxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
-          setTimeout(() => updatePosts(url, newMaxPubDate, feedId), delayTime);
+          const newItems = _.differenceBy(itemsInfo, oldPosts,'itemLink');
+          if (newItems.length !== 0) {
+            const newPost = newItems.map((post) => ({ ...post, id: _.uniqueId(), feedId }))
+            watchedState.rssContent.posts = [...newPost, ...watchedState.rssContent.posts];
+          }
+          setTimeout(() => updatePosts(url, feedId), delayTime);
         })
         .catch((err) => {
           watchedState.form.errorType = err.message;
@@ -129,7 +131,7 @@ export default () => {
             watchedState.rssContent.posts.unshift(...newPosts);
             watchedState.formProcessState = 'idle';
             const maxPubDate = _.max(itemsInfo.map((el) => el.itemDate));
-            setTimeout(() => updatePosts(url, maxPubDate, feedId), delayTime);
+            setTimeout(() => updatePosts(url, feedId), delayTime);
           })
           .catch((err) => {
             watchedState.form.errorType = getErrorType(err);
