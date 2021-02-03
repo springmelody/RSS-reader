@@ -8,7 +8,7 @@ export default (state, elements) => {
     const feedsContainer = document.querySelector('.feeds');
     feedsContainer.innerHTML = '';
     const feedsTitle = document.createElement('h2');
-    feedsTitle.innerText = i18next.t('feedsTitle');
+    feedsTitle.textContent = i18next.t('feedsTitle');
     feedsContainer.appendChild(feedsTitle);
 
     const list = document.createElement('ul');
@@ -17,10 +17,10 @@ export default (state, elements) => {
       const item = document.createElement('li');
       item.setAttribute('class', 'list-group-item');
       const itemTitle = document.createElement('h3');
-      itemTitle.innerText = el.title;
+      itemTitle.textContent = el.title;
       item.appendChild(itemTitle);
       const itemDescEl = document.createElement('p');
-      itemDescEl.innerText = el.description;
+      itemDescEl.textContent = el.description;
       item.appendChild(itemDescEl);
       list.appendChild(item);
       feedsContainer.appendChild(list);
@@ -31,7 +31,7 @@ export default (state, elements) => {
     const postsContainer = document.querySelector('.posts');
     postsContainer.innerHTML = '';
     const postsTitle = document.createElement('h2');
-    postsTitle.innerText = i18next.t('postsTitle');
+    postsTitle.textContent = i18next.t('postsTitle');
     postsContainer.appendChild(postsTitle);
     const postsList = watchedState.rssContent.posts;
     const listEl = document.createElement('ul');
@@ -44,13 +44,13 @@ export default (state, elements) => {
       const className = watchedState.rssContent.viewedPosts.has(Number(post.id)) ? 'font-weight-normal' : 'font-weight-bold';
       itemElLink.setAttribute('class', className);
       itemElLink.setAttribute('data-id', post.id);
-      itemElLink.innerText = post.itemTitle;
+      itemElLink.textContent = post.itemTitle;
       const itemElBtn = document.createElement('button');
       itemElBtn.setAttribute('class', 'btn btn-primary btn-sm');
       itemElBtn.setAttribute('data-toggle', 'modal');
       itemElBtn.setAttribute('data-target', '#modalPreview');
       itemElBtn.setAttribute('data-id', post.id);
-      itemElBtn.innerText = 'Preview';
+      itemElBtn.textContent = 'Preview';
       itemEL.appendChild(itemElLink);
       itemEL.appendChild(itemElBtn);
       listEl.appendChild(itemEL);
@@ -67,7 +67,7 @@ export default (state, elements) => {
         submitButton.disabled = false;
         feedbackContainer.classList.remove('text-danger');
         feedbackContainer.classList.add('text-success');
-        feedbackContainer.innerText = i18next.t('loaded');
+        feedbackContainer.textContent = i18next.t('loaded');
         input.value = '';
         input.focus();
         break;
@@ -76,7 +76,7 @@ export default (state, elements) => {
         feedbackContainer.classList.remove('text-success');
         feedbackContainer.classList.add('text-danger');
         input.classList.add('is-invalid');
-        feedbackContainer.innerText = watchedState.form.errorType;
+        feedbackContainer.textContent = watchedState.form.errorType;
         break;
       default:
         throw new Error(`Unknown formProcessState: ${watchedState.formProcessState}`);
@@ -90,7 +90,7 @@ export default (state, elements) => {
       input.classList.add('is-invalid');
       feedbackContainer.classList.remove('text-success');
       feedbackContainer.classList.add('text-danger');
-      feedbackContainer.innerText = watchedState.form.errorType;
+      feedbackContainer.textContent = watchedState.form.errorType;
     }
   };
 
