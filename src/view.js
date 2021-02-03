@@ -48,7 +48,7 @@ export default (state, elements) => {
       const itemElBtn = document.createElement('button');
       itemElBtn.setAttribute('class', 'btn btn-primary btn-sm');
       itemElBtn.setAttribute('data-toggle', 'modal');
-      itemElBtn.setAttribute('data-target', '#modalPreview');
+      itemElBtn.setAttribute('data-target', '#modal');
       itemElBtn.setAttribute('data-id', post.id);
       itemElBtn.textContent = 'Preview';
       itemEL.appendChild(itemElLink);

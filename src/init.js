@@ -67,11 +67,11 @@ export default () => {
       }
     };
 
-    $('#modalPreview').on('shown.bs.modal', (event) => {
+    $('#modal').on('shown.bs.modal', (event) => {
       const button = $(event.relatedTarget);
       const recipient = button.data('id');
       const postInfo = watchedState.rssContent.posts.find((el) => Number(el.id) === recipient);
-      const modal = $('#modalPreview');
+      const modal = $('#modal');
       modal.find('.modal-body').text(postInfo.itemDescription);
       modal.find('.modal-title').text(postInfo.itemTitle);
       modal.find('.full-article').attr('href', postInfo.itemLink);
