@@ -99,6 +99,9 @@ export default () => {
     elements.posts.addEventListener('click', (e) => {
       const postId = e.target.getAttribute('data-id');
       watchedState.rssContent.viewedPosts.add(Number(postId));
+      if (_.isEmpty(watchedState.rssContent.posts)) {
+        return;
+      }
       const post = watchedState.rssContent.posts.find((el) => el.id === postId);
       watchedState.modal = {
         description: post.itemDescription,
