@@ -17,7 +17,7 @@ export default () => {
     feedbackContainer: document.querySelector('.feedback'),
   };
 
-  const crossOrigin = 'https://cors-anywhere.herokuapp.com/';
+  const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
   const delayTime = 5000;
 
   const buildUrl = (rssUrl) => `${crossOrigin}${rssUrl}`.trim();
@@ -81,7 +81,7 @@ export default () => {
     const updatePosts = (url, feedId) => {
       axios.get(url)
         .then(({ data }) => {
-          const newDataFeed = parse(data);
+          const newDataFeed = parse(data.contents);
           const { itemsInfo } = newDataFeed;
           const oldPosts = watchedState.rssContent.posts.filter((el) => el.feedId === feedId);
           const newItems = _.differenceBy(itemsInfo, oldPosts, 'itemLink');
@@ -101,9 +101,6 @@ export default () => {
       if (error.isAxiosError) {
         return i18next.t('errorMessages.network');
       }
-      if (error.isParsingError) {
-        console.log('isParsingError', error);
-      }
 
       return i18next.t('errorMessages.valid');
     };
@@ -117,9 +114,10 @@ export default () => {
         watchedState.formProcessState = 'loading';
         watchedState.form.valid = 'valid';
         const url = buildUrl(rssUrl);
+        console.log('url', url);
         axios.get(url)
           .then(({ data }) => {
-            const dataFeed = parse(data);
+            const dataFeed = parse(data.contents);
             const feedId = _.uniqueId();
             const {
               title, description, itemsInfo,
