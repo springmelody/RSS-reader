@@ -101,6 +101,9 @@ export default () => {
       if (error.isAxiosError) {
         return i18next.t('errorMessages.network');
       }
+      if (error.isParsingError) {
+        console.log('isParsingError', error);
+      }
 
       return i18next.t('errorMessages.valid');
     };
