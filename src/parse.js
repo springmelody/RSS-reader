@@ -18,6 +18,7 @@ export default (data) => {
       title, description, itemsInfo,
     };
   } catch (error) {
-    return error;
+    error.isParsingError = true;
+    throw error;
   }
 };

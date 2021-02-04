@@ -92,8 +92,10 @@ export default () => {
       if (error.isAxiosError) {
         return i18next.t('errorMessages.network');
       }
-
-      return i18next.t('errorMessages.valid');
+      if (error.isParsingError) {
+        return i18next.t('errorMessages.valid');
+      }
+      return i18next.t('errorMessages.unknown');
     };
 
     elements.posts.addEventListener('click', (e) => {

@@ -10,6 +10,7 @@ const en = {
       duplicate: 'Rss already exists',
       network: 'Network Error',
       valid: 'This source doesn\'t contain valid rss',
+      unknown: 'unknown error',
     },
   },
 };
