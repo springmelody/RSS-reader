@@ -114,7 +114,6 @@ export default () => {
         watchedState.formProcessState = 'loading';
         watchedState.form.valid = 'valid';
         const url = buildUrl(rssUrl);
-        console.log('url', url);
         axios.get(url)
           .then(({ data }) => {
             const dataFeed = parse(data.contents);
