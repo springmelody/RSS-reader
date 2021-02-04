@@ -9,9 +9,8 @@ export default (data) => {
       const itemTitle = item.querySelector('title').textContent;
       const itemLink = item.querySelector('link').textContent;
       const itemDescription = item.querySelector('description').textContent;
-      const itemDate = new Date(item.querySelector('pubDate').textContent);
       return {
-        itemTitle, itemLink, itemDescription, itemDate,
+        itemTitle, itemLink, itemDescription,
       };
     });
 
