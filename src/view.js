@@ -2,7 +2,12 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 
 export default (state, elements) => {
-  const { input, submitButton, feedbackContainer } = elements;
+  const {
+    input,
+    submitButton,
+    feedbackContainer,
+    modal,
+  } = elements;
 
   const renderFeeds = (feeds) => {
     const feedsContainer = document.querySelector('.feeds');
@@ -94,6 +99,16 @@ export default (state, elements) => {
     }
   };
 
+  const renderModal = (watchedState) => {
+    const { description, link, title } = watchedState.modal;
+    const modalTitle = modal.querySelector('.modal-title');
+    modalTitle.textContent = title;
+    const modalBody = modal.querySelector('.modal-body');
+    modalBody.textContent = description;
+    const modalLink = modal.querySelector('.full-article');
+    modalLink.href = link;
+  };
+
   const watchedState = onChange(state, (path) => {
     switch (path) {
       case 'formProcessState':
@@ -110,6 +125,9 @@ export default (state, elements) => {
         break;
       case 'rssContent.viewedPosts':
         renderPosts(watchedState);
+        break;
+      case 'modal':
+        renderModal(watchedState);
         break;
       default:
         break;

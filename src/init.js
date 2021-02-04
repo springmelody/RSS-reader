@@ -3,7 +3,6 @@ import 'bootstrap';
 import axios from 'axios';
 import { string, setLocale } from 'yup';
 import _ from 'lodash';
-import $ from 'jquery';
 import i18next from 'i18next';
 import parse from './parse.js';
 import resources from './locales/en.js';
@@ -15,6 +14,8 @@ export default () => {
     input: document.querySelector('.form-control'),
     submitButton: document.querySelector('button[type="submit"]'),
     feedbackContainer: document.querySelector('.feedback'),
+    posts: document.querySelector('.posts'),
+    modal: document.querySelector('.modal'),
   };
 
   const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
@@ -50,6 +51,7 @@ export default () => {
         feedsUrl: [],
         viewedPosts: new Set(),
       },
+      modal: [],
     };
 
     const watchedState = watch(state, elements);
@@ -66,17 +68,6 @@ export default () => {
         return err.message;
       }
     };
-
-    $('#modal').on('shown.bs.modal', (event) => {
-      const button = $(event.relatedTarget);
-      const recipient = button.data('id');
-      const postInfo = watchedState.rssContent.posts.find((el) => Number(el.id) === recipient);
-      const modal = $('#modal');
-      modal.find('.modal-body').text(postInfo.itemDescription);
-      modal.find('.modal-title').text(postInfo.itemTitle);
-      modal.find('.full-article').attr('href', postInfo.itemLink);
-      watchedState.rssContent.viewedPosts.add(recipient);
-    });
 
     const updatePosts = (url, feedId) => {
       axios.get(url)
@@ -104,6 +95,17 @@ export default () => {
 
       return i18next.t('errorMessages.valid');
     };
+
+    elements.posts.addEventListener('click', (e) => {
+      const postId = e.target.getAttribute('data-id');
+      watchedState.rssContent.viewedPosts.add(Number(postId));
+      const post = watchedState.rssContent.posts.find((el) => el.id === postId);
+      watchedState.modal = {
+        description: post.itemDescription,
+        title: post.itemTitle,
+        link: post.itemLink,
+      };
+    });
 
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
