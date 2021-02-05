@@ -67,9 +67,11 @@ export default (state, elements) => {
     switch (watchedState.formProcessState) {
       case 'loading':
         submitButton.disabled = true;
+        input.setAttribute('readonly', 'true');
         break;
       case 'idle':
         submitButton.disabled = false;
+        input.removeAttribute('readonly');
         feedbackContainer.classList.remove('text-danger');
         feedbackContainer.classList.add('text-success');
         feedbackContainer.textContent = i18next.t('loaded');
@@ -78,6 +80,7 @@ export default (state, elements) => {
         break;
       case 'failed':
         submitButton.disabled = false;
+        input.removeAttribute('readonly');
         feedbackContainer.classList.remove('text-success');
         feedbackContainer.classList.add('text-danger');
         input.classList.add('is-invalid');
