@@ -18,10 +18,15 @@ export default () => {
     modal: document.querySelector('.modal'),
   };
 
-  const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
+  // const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
   const delayTime = 5000;
 
-  const buildUrl = (rssUrl) => `${crossOrigin}${rssUrl}`.trim();
+  const buildUrl = (rssUrl) => {
+    const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
+    urlWithProxy.searchParams.set('url', rssUrl);
+    urlWithProxy.searchParams.set('disableCache', 'true');
+    return urlWithProxy.toString();
+  };
 
   i18next.init({
     lng: 'en',
@@ -121,6 +126,7 @@ export default () => {
         watchedState.formProcessState = 'loading';
         watchedState.form.valid = 'valid';
         const url = buildUrl(rssUrl);
+        console.log('url', url);
         axios.get(url)
           .then(({ data }) => {
             const dataFeed = parse(data.contents);
