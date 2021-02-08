@@ -49,19 +49,19 @@ export default () => {
         feeds: [],
         posts: [],
         feedsUrl: [],
-        viewedPosts: new Set(),
       },
+      viewedPosts: new Set(),
       modal: [],
     };
 
     const watchedState = watch(state, elements);
 
     const validateUrl = (url) => {
+      const schema = string()
+        .required()
+        .url()
+        .notOneOf(watchedState.rssContent.feedsUrl);
       try {
-        const schema = string()
-          .required()
-          .url()
-          .notOneOf(watchedState.rssContent.feedsUrl);
         schema.validateSync(url);
         return null;
       } catch (err) {
@@ -100,7 +100,7 @@ export default () => {
 
     elements.posts.addEventListener('click', (e) => {
       const postId = e.target.getAttribute('data-id');
-      watchedState.rssContent.viewedPosts.add(Number(postId));
+      watchedState.viewedPosts.add(postId);
       if (_.isEmpty(watchedState.rssContent.posts)) {
         return;
       }

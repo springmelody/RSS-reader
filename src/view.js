@@ -46,7 +46,7 @@ export default (state, elements) => {
       itemEL.setAttribute('class', 'list-group-item d-flex justify-content-between align-items-start');
       const itemElLink = document.createElement('a');
       itemElLink.setAttribute('href', post.itemLink);
-      const className = watchedState.rssContent.viewedPosts.has(Number(post.id)) ? 'font-weight-normal' : 'font-weight-bold';
+      const className = watchedState.viewedPosts.has(post.id) ? 'font-weight-normal' : 'font-weight-bold';
       itemElLink.setAttribute('class', className);
       itemElLink.setAttribute('data-id', post.id);
       itemElLink.textContent = post.itemTitle;
@@ -126,7 +126,7 @@ export default (state, elements) => {
       case 'rssContent.feeds':
         renderFeeds(watchedState.rssContent.feeds);
         break;
-      case 'rssContent.viewedPosts':
+      case 'viewedPosts':
         renderPosts(watchedState);
         break;
       case 'modal':
