@@ -18,7 +18,6 @@ export default () => {
     modal: document.querySelector('.modal'),
   };
 
-  // const crossOrigin = 'https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=';
   const delayTime = 5000;
 
   const buildUrl = (rssUrl) => {
