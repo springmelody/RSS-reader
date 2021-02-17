@@ -10,11 +10,11 @@ export default (state, elements) => {
   } = elements;
 
   const renderFeeds = (feeds) => {
+    const fragment = document.createDocumentFragment();
     const feedsContainer = document.querySelector('.feeds');
-    feedsContainer.innerHTML = '';
     const feedsTitle = document.createElement('h2');
     feedsTitle.textContent = i18next.t('feedsTitle');
-    feedsContainer.appendChild(feedsTitle);
+    fragment.appendChild(feedsTitle);
 
     const list = document.createElement('ul');
     list.setAttribute('class', 'list-group mb-5');
@@ -28,16 +28,19 @@ export default (state, elements) => {
       itemDescEl.textContent = el.description;
       item.appendChild(itemDescEl);
       list.appendChild(item);
-      feedsContainer.appendChild(list);
+      fragment.appendChild(list);
     });
+
+    feedsContainer.innerHTML = '';
+    feedsContainer.appendChild(fragment);
   };
 
   const renderPosts = (watchedState) => {
+    const fragment = document.createDocumentFragment();
     const postsContainer = document.querySelector('.posts');
-    postsContainer.innerHTML = '';
     const postsTitle = document.createElement('h2');
     postsTitle.textContent = i18next.t('postsTitle');
-    postsContainer.appendChild(postsTitle);
+    fragment.appendChild(postsTitle);
     const postsList = watchedState.rssContent.posts;
     const listEl = document.createElement('ul');
     listEl.setAttribute('class', 'list-group');
@@ -60,7 +63,10 @@ export default (state, elements) => {
       itemEL.appendChild(itemElBtn);
       listEl.appendChild(itemEL);
     });
-    postsContainer.appendChild(listEl);
+
+    fragment.appendChild(listEl);
+    postsContainer.innerHTML = '';
+    postsContainer.appendChild(fragment);
   };
 
   const handleProcessState = (watchedState) => {
@@ -84,7 +90,7 @@ export default (state, elements) => {
         feedbackContainer.classList.remove('text-success');
         feedbackContainer.classList.add('text-danger');
         input.classList.add('is-invalid');
-        feedbackContainer.textContent = watchedState.form.errorType;
+        feedbackContainer.textContent = i18next.t(`errorMessages.${watchedState.form.errorType}`);
         break;
       default:
         throw new Error(`Unknown formProcessState: ${watchedState.formProcessState}`);
@@ -98,7 +104,8 @@ export default (state, elements) => {
       input.classList.add('is-invalid');
       feedbackContainer.classList.remove('text-success');
       feedbackContainer.classList.add('text-danger');
-      feedbackContainer.textContent = watchedState.form.errorType;
+      const { key } = watchedState.form.errorType;
+      feedbackContainer.textContent = i18next.t(`errorMessages.${key}`);
     }
   };
 

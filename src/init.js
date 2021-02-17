@@ -34,11 +34,11 @@ export default () => {
   }).then(() => {
     setLocale({
       string: {
-        url: i18next.t('errorMessages.url'),
+        url: () => ({ key: 'url' }),
       },
       mixed: {
-        required: i18next.t('errorMessages.required'),
-        notOneOf: i18next.t('errorMessages.duplicate'),
+        required: () => ({ key: 'required' }),
+        notOneOf: () => ({ key: 'duplicate' }),
       },
     });
 
@@ -73,33 +73,42 @@ export default () => {
       }
     };
 
-    const updatePosts = (url, feedId) => {
-      axios.get(url)
-        .then(({ data }) => {
-          const newDataFeed = parse(data.contents);
-          const { itemsInfo } = newDataFeed;
-          const oldPosts = watchedState.rssContent.posts.filter((el) => el.feedId === feedId);
-          const newItems = _.differenceBy(itemsInfo, oldPosts, 'itemLink');
-          if (newItems.length !== 0) {
-            const newPost = newItems.map((post) => ({ ...post, id: _.uniqueId(), feedId }));
-            watchedState.rssContent.posts = [...newPost, ...watchedState.rssContent.posts];
-          }
-          setTimeout(() => updatePosts(url, feedId), delayTime);
-        })
-        .catch((err) => {
-          watchedState.form.errorType = err.message;
-          watchedState.formProcessState = 'invalid';
-        });
+    const updatePosts = (stateData) => {
+      const promises = stateData.rssContent.feedsUrl.map((feedUrl) => {
+        const url = buildUrl(feedUrl);
+        return axios.get(url)
+          .then(({ data }) => {
+            const newDataFeed = parse(data.contents);
+            const { itemsInfo } = newDataFeed;
+            const currentFeedTitle = newDataFeed.title;
+            const currentFeed = stateData.rssContent.feeds
+              .find((feed) => feed.title === currentFeedTitle);
+            const currentFeedId = currentFeed.id;
+            const oldPosts = stateData.rssContent.posts
+              .filter((el) => el.feedId === currentFeedId);
+            const newItems = _.differenceBy(itemsInfo, oldPosts, 'itemLink');
+            if (newItems.length !== 0) {
+              const newPost = newItems
+                .map((post) => ({ ...post, id: _.uniqueId(), currentFeedId }));
+              stateData.rssContent.posts = [...newPost, ...stateData.rssContent.posts];
+            }
+          })
+          .catch((err) => {
+            stateData.form.errorType = err.message;
+            stateData.formProcessState = 'invalid';
+          });
+      });
+      Promise.all(promises).finally(() => setTimeout(() => updatePosts(stateData), delayTime));
     };
 
     const getErrorType = (error) => {
       if (error.isAxiosError) {
-        return i18next.t('errorMessages.network');
+        return 'network';
       }
       if (error.isParsingError) {
-        return i18next.t('errorMessages.valid');
+        return 'valid';
       }
-      return i18next.t('errorMessages.unknown');
+      return 'unknown';
     };
 
     elements.posts.addEventListener('click', (e) => {
@@ -125,7 +134,6 @@ export default () => {
         watchedState.formProcessState = 'loading';
         watchedState.form.valid = 'valid';
         const url = buildUrl(rssUrl);
-        console.log('url', url);
         axios.get(url)
           .then(({ data }) => {
             const dataFeed = parse(data.contents);
@@ -141,7 +149,7 @@ export default () => {
             watchedState.rssContent.feedsUrl.push(rssUrl);
             watchedState.rssContent.posts.unshift(...newPosts);
             watchedState.formProcessState = 'idle';
-            setTimeout(() => updatePosts(url, feedId), delayTime);
+            updatePosts(watchedState);
           })
           .catch((err) => {
             watchedState.form.errorType = getErrorType(err);
