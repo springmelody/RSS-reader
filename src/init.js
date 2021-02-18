@@ -5,7 +5,7 @@ import { string, setLocale } from 'yup';
 import _ from 'lodash';
 import i18next from 'i18next';
 import parse from './parse.js';
-import resources from './locales/en.js';
+import resources from './locales/index.js';
 import watch from './view.js';
 
 export default () => {
@@ -28,7 +28,7 @@ export default () => {
   };
 
   i18next.init({
-    lng: 'en',
+    lng: 'ru',
     debug: false,
     resources,
   }).then(() => {

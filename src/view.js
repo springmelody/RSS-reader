@@ -58,7 +58,7 @@ export default (state, elements) => {
       itemElBtn.setAttribute('data-toggle', 'modal');
       itemElBtn.setAttribute('data-target', '#modal');
       itemElBtn.setAttribute('data-id', post.id);
-      itemElBtn.textContent = 'Preview';
+      itemElBtn.textContent = i18next.t('previewBtn');
       itemEL.appendChild(itemElLink);
       itemEL.appendChild(itemElBtn);
       listEl.appendChild(itemEL);

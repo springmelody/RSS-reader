@@ -1,8 +1,9 @@
-const en = {
+export default {
   translation: {
     loaded: 'Rss has been loaded',
     feedsTitle: 'Feeds',
     postsTitle: 'Posts',
+    previewBtn: 'Preview',
     errorMessages: {
       required: 'Required',
       url: 'Must be valid url',
@@ -13,5 +14,3 @@ const en = {
     },
   },
 };
-
-export default { en };
