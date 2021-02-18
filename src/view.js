@@ -28,9 +28,9 @@ export default (state, elements) => {
       itemDescEl.textContent = el.description;
       item.appendChild(itemDescEl);
       list.appendChild(item);
-      fragment.appendChild(list);
     });
 
+    fragment.appendChild(list);
     feedsContainer.innerHTML = '';
     feedsContainer.appendChild(fragment);
   };

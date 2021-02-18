@@ -149,7 +149,7 @@ export default () => {
             watchedState.rssContent.feedsUrl.push(rssUrl);
             watchedState.rssContent.posts.unshift(...newPosts);
             watchedState.formProcessState = 'idle';
-            updatePosts(watchedState);
+            setTimeout(() => updatePosts(watchedState), delayTime);
           })
           .catch((err) => {
             watchedState.form.errorType = getErrorType(err);
