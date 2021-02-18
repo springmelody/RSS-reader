@@ -4,6 +4,8 @@ export default {
     feedsTitle: 'Фиды',
     postsTitle: 'Посты',
     previewBtn: 'Просмотр',
+    modalLink: 'Читать полностью',
+    closeBtn: 'Закрыть',
     errorMessages: {
       required: 'не должно быть пустым',
       url: 'Ссылка должна быть валидным URL',

@@ -4,6 +4,8 @@ export default {
     feedsTitle: 'Feeds',
     postsTitle: 'Posts',
     previewBtn: 'Preview',
+    modalLink: 'Full article',
+    closeBtn: 'Close',
     errorMessages: {
       required: 'Required',
       url: 'Must be valid url',

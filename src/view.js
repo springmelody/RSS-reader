@@ -116,7 +116,10 @@ export default (state, elements) => {
     const modalBody = modal.querySelector('.modal-body');
     modalBody.textContent = description;
     const modalLink = modal.querySelector('.full-article');
+    modalLink.textContent = i18next.t('modalLink');
     modalLink.href = link;
+    const modalCloseBtn = modal.querySelector('button.btn');
+    modalCloseBtn.textContent = i18next.t('closeBtn');
   };
 
   const watchedState = onChange(state, (path) => {
