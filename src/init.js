@@ -29,9 +29,12 @@ export default () => {
 
   i18next.init({
     lng: 'ru',
-    debug: false,
+    fallbackLng: 'ru',
+    debug: true,
     resources,
   }).then(() => {
+    console.log(resources);
+    console.log('i18next.languages', i18next.languages);
     setLocale({
       string: {
         url: () => ({ key: 'url' }),
