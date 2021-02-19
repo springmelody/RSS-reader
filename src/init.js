@@ -27,8 +27,9 @@ export default () => {
     return urlWithProxy.toString();
   };
 
-  return i18next.init({
+  i18next.init({
     lng: 'ru',
+    fallbackLng: 'ru',
     debug: true,
     resources,
   }).then(() => {
