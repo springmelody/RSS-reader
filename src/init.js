@@ -27,14 +27,11 @@ export default () => {
     return urlWithProxy.toString();
   };
 
-  i18next.init({
+  return i18next.init({
     lng: 'ru',
-    fallbackLng: 'ru',
     debug: true,
     resources,
   }).then(() => {
-    console.log(resources);
-    console.log('i18next.languages', i18next.languages);
     setLocale({
       string: {
         url: () => ({ key: 'url' }),
